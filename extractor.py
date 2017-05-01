@@ -22,3 +22,28 @@ def get_fixture_links_for_league(bs4, league):
     return links
 
 
+
+def get_all_fixture_links_for_league(league, number_of_weeks = None):
+    
+    """
+    Returns dictionary with all links for a given league
+    
+    Attributes:
+        league (str): league available in uk.sports.yahoo.com/football, i.e. "premier-league"
+        number_of_weeks (int) : number of weeks for a league, default value is 38
+    """
+    
+    if number_of_weeks == None:
+        weeks = 38
+    else:
+        weeks = number_of_weeks
+        
+    league_link = 'https://uk.sports.yahoo.com/football/' + league + '/fixtures/?schedState=2&dateRange='
+    league_fixtures_dict = {}
+    
+    for week in range(1, weeks + 1): 
+
+        html = from_url_to_bs4(league_link + str(week))
+        league_fixtures_dict[week] = get_fixture_links_for_league(html, league)
+        
+    return league_fixtures_dict
