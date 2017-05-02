@@ -47,3 +47,15 @@ def get_all_fixture_links_for_league(league, number_of_weeks = None):
         league_fixtures_dict[week] = get_fixture_links_for_league(html, league)
         
     return league_fixtures_dict
+
+
+
+def get_player_name(player_string):
+    
+    """
+    Returns player name from bs4 string
+    """
+    
+    name = re.search("title=\"(\w+. \w+)(.*)", player_string)
+    
+    return name.group(1)
