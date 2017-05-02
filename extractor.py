@@ -59,3 +59,16 @@ def get_player_name(player_string):
     name = re.search("title=\"(\w+. \w+)(.*)", player_string)
     
     return name.group(1)
+
+
+
+def get_stats_for_player(player_string):
+    
+    """
+    Returns player statistics from bs4 string
+    """
+    
+    stats = re.findall(">(\d*)<", player_string)
+    stats_list = [stat for stat in stats if stat != ""]
+    
+    return stats_list
