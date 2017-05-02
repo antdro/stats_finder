@@ -136,3 +136,38 @@ def get_away_part_html(html):
     away_html = str(html)[split_point + len("-->Substitutes<!"):]
     
     return away_html
+
+
+
+def get_fixture_stats_dict(html):
+    
+    """
+    Returns a dictionary with all players statistics given bs4 object.
+    Dictionary does not have stats keys, but ordered the same way as it is on the website.
+    """
+
+    away_html = get_away_part_html(html)
+
+    fixture_stats_dict = {}
+    home_stats_dict = {}
+    away_stats_dict = {}
+
+    positions = ['forwards', 'midfielders', 'defenders', 'goalkeepers', 'substitutes']
+    fields = ['home', 'away']
+
+    for field in fields:
+        for position in positions:
+            if field == 'home':
+                home_stats_dict[position] = get_players_by_position(html, position)
+            else:
+                if position == 'substitutes':
+                    #away_stats.append(get_players_by_position(away_html, position, is_away = True))
+                    away_stats_dict[position] = get_players_by_position(away_html, position, is_away = True)
+                else:
+                    #away_stats.append(get_players_by_position(away_html, position))
+                    away_stats_dict[position] = get_players_by_position(away_html, position)
+
+    fixture_stats_dict['home'] = home_stats_dict
+    fixture_stats_dict['away'] = away_stats_dict
+
+    return fixture_stats_dict
