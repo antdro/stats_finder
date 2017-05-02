@@ -105,8 +105,7 @@ def get_players_by_position(html, position, is_away = None):
         players_str = re.search("Goalkeepers(.*?)>Substitutes", str(html)).group(1)
     elif position == 'substitutes':
         if away == True:
-            no_home_subs = re.search("Substitutes(.*?)html", str(away_html)).group(1)
-            players_str = re.search("Substitute(.*?)info.yahoo.com", str(no_home_subs)).group(1)
+            players_str = re.search("Substitutes(.*?)html", str(html)).group(1)
         else:
             players_str = re.search("Substitutes(.*?)>Forwards", str(html)).group(1)
     else:
