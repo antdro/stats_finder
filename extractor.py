@@ -72,3 +72,52 @@ def get_stats_for_player(player_string):
     stats_list = [stat for stat in stats if stat != ""]
     
     return stats_list
+
+
+
+def get_players_by_position(html, position, is_away = None):
+    
+    """
+    Returns a dictionary with players stats in a format dict = {position: {player: [stats]}}, 
+    given bs4 object and position
+    
+    Attributess:
+        html(bs4): beautifulsoup object representing html
+        position(str): player's position
+                       values: forwards, midfielders, defenders, goalkeeper, substitutes
+    """
+    
+    stats_dict = {}
+    splitter = "href=\"/football/players"    
+    
+    if is_away == None:
+        away = False
+    else:
+        away = True
+    
+    if position == "forwards":
+        players_str = re.search("Forwards(.*?)>Midfielders", str(html)).group(1)
+    elif position == "midfielders":
+        players_str = re.search("Midfielders(.*?)>Defenders", str(html)).group(1)
+    elif position == "defenders":
+        players_str = re.search("Defenders(.*?)Goalkeepers", str(html)).group(1)
+    elif position == 'goalkeepers':
+        players_str = re.search("Goalkeepers(.*?)>Substitutes", str(html)).group(1)
+    elif position == 'substitutes':
+        if away == True:
+            no_home_subs = re.search("Substitutes(.*?)html", str(away_html)).group(1)
+            players_str = re.search("Substitute(.*?)info.yahoo.com", str(no_home_subs)).group(1)
+        else:
+            players_str = re.search("Substitutes(.*?)>Forwards", str(html)).group(1)
+    else:
+        raise NameError("Typo in position variable")
+        
+    players = str(players_str).split(splitter)[1:]
+    
+    for player in players:
+        player_name = get_player_name(player)
+        player_stats = get_stats_for_player(player)
+        
+        stats_dict[player_name] = player_stats
+        
+    return stats_dict
