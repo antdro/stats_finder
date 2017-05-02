@@ -121,3 +121,19 @@ def get_players_by_position(html, position, is_away = None):
         stats_dict[player_name] = player_stats
         
     return stats_dict
+
+
+
+def get_away_part_html(html):
+    
+    """
+    Returns a part of htmt that represents away team as a string
+    """
+    
+    html_splitter = "-->Substitutes<!-- /react-text --></th>"
+    split_point = str(html).find(html_splitter)
+
+    home_html = str(html)[:split_point]
+    away_html = str(html)[split_point + len("-->Substitutes<!"):]
+    
+    return away_html
