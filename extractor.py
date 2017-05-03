@@ -4,6 +4,33 @@ from importer import pd, bs, os, re
 from loader import from_url_to_bs4
 
 
+def get_kick_off(html):
+    
+    """
+    Returns kick-off date of fixture, given bs4 object
+    """
+    
+    pattern = "(.*?)\| (\d\d\d\d-\d\d-\d\d) \|(.*?)"
+    date = re.search(pattern, str(html)).group(2)
+    
+    return date
+
+
+
+def get_attendance(html):
+    
+    """
+    Returns attendance for fixture, given bs4 object
+    """
+    
+    pattern = '\"attendance\":\"(\d*)\"'
+    attendance = re.search(pattern, str(html)).group(1)
+    
+    return attendance
+
+
+
+
 def get_fixture_links_for_league(bs4, league):
 
     '''
@@ -200,7 +227,7 @@ def get_shirts(html):
 
 
 
-def get_goal_info(scoring_summary):
+def get_goal_info(scoring_summary, kickoff):
     
     """
     Returns a tuple with a goal info, given scoring summary string.
@@ -213,7 +240,7 @@ def get_goal_info(scoring_summary):
     scorer = re.search(pattern, scoring_summary).group(3)
     team = re.search(pattern, scoring_summary).group(4)
     
-    return (team, scorer, minute)
+    return (team, scorer, minute, kickoff)
 
 
 
@@ -227,10 +254,12 @@ def get_goals_info_list(html):
 
     exit = True
     goals = []
+    
+    kickoff = get_kick_off(html)
 
     while exit:
         try:
-            goal_info = get_goal_info(scoring_summary)
+            goal_info = get_goal_info(scoring_summary, kickoff)
             goals.append(goal_info)
             first_player_index = scoring_summary.find(goal_info[1])
             scoring_summary = scoring_summary[first_player_index:]
@@ -239,29 +268,3 @@ def get_goals_info_list(html):
             break
             
     return goals
-
-
-
-def get_kick_off(html):
-    
-    """
-    Returns kick-off date of fixture, given bs4 object
-    """
-    
-    pattern = "(.*?)\| (\d\d\d\d-\d\d-\d\d) \|(.*?)"
-    date = re.search(pattern, str(html)).group(2)
-    
-    return date
-
-
-
-def get_attendance(html):
-    
-    """
-    Returns attendance for fixture, given bs4 object
-    """
-    
-    pattern = '\"attendance\":\"(\d*)\"'
-    attendance = re.search(pattern, str(html)).group(1)
-    
-    return attendance
