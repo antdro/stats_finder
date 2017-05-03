@@ -171,3 +171,31 @@ def get_fixture_stats_dict(html):
     fixture_stats_dict['away'] = away_stats_dict
 
     return fixture_stats_dict
+
+
+
+def get_shirts(html):
+    
+    """
+    Returns a dict with players' shirt number, given bs4
+    Format {player : 'shirt'}
+    """
+
+    divs = html.find_all('div', class_ = 'D(ib)')
+    text = []
+
+    for div in divs:
+        text.append(div.get_text())
+
+    pattern = "#(\d+)(.*)"
+    players_dict = {}
+
+    for string in text:
+
+        match = re.search(pattern, string)
+        if match:
+            shirt = match.group(1)
+            player = match.group(2).strip()
+            players_dict[player] = shirt
+            
+    return players_dict
