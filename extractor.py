@@ -260,8 +260,12 @@ def get_goals_info_list(html):
     while exit:
         try:
             goal_info = get_goal_info(scoring_summary, kickoff)
+            
+            # remove
+            print (goal_info)
+            
             goals.append(goal_info)
-            first_player_index = scoring_summary.find(goal_info[1])
+            first_player_index = scoring_summary.find(goal_info[1]) + 1
             scoring_summary = scoring_summary[first_player_index:]
         except AttributeError:
             exit = False
