@@ -161,10 +161,8 @@ def get_fixture_stats_dict(html):
                 home_stats_dict[position] = get_players_by_position(html, position)
             else:
                 if position == 'substitutes':
-                    #away_stats.append(get_players_by_position(away_html, position, is_away = True))
                     away_stats_dict[position] = get_players_by_position(away_html, position, is_away = True)
                 else:
-                    #away_stats.append(get_players_by_position(away_html, position))
                     away_stats_dict[position] = get_players_by_position(away_html, position)
 
     fixture_stats_dict['home'] = home_stats_dict
@@ -199,3 +197,20 @@ def get_shirts(html):
             players_dict[player] = shirt
             
     return players_dict
+
+
+
+def get_goal_info(scoring_summary):
+    
+    """
+    Returns a tuple with a goal info, given scorring summary string.
+    Tuple format (team, scorer, minute)
+    """
+
+    pattern = "(\d{1,2})\'(.*?)\. (.*?) \((.*?)\)"
+
+    minute = re.search(pattern, scoring_summary).group(1)
+    scorer = re.search(pattern, scoring_summary).group(3)
+    team = re.search(pattern, scoring_summary).group(4)
+    
+    return (team, scorer, minute)
