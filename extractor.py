@@ -203,7 +203,7 @@ def get_shirts(html):
 def get_goal_info(scoring_summary):
     
     """
-    Returns a tuple with a goal info, given scorring summary string.
+    Returns a tuple with a goal info, given scoring summary string.
     Tuple format (team, scorer, minute)
     """
 
@@ -214,3 +214,28 @@ def get_goal_info(scoring_summary):
     team = re.search(pattern, scoring_summary).group(4)
     
     return (team, scorer, minute)
+
+
+
+def get_goals_info_list(html):
+    
+    """
+    Returns a list of tuples with a all goals for fixture, given bs4 object.
+    """
+
+    scoring_summary = re.search("Scoring Summary(.*?)>Forwards", str(html)).group(1)
+
+    exit = True
+    goals = []
+
+    while exit:
+        try:
+            goal_info = get_goal_info(scoring_summary)
+            goals.append(goal_info)
+            first_player_index = scoring_summary.find(goal_info[1])
+            scoring_summary = scoring_summary[first_player_index:]
+        except AttributeError:
+            exit = False
+            break
+            
+    return goals
