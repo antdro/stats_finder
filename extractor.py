@@ -30,6 +30,20 @@ def get_attendance(html):
 
 
 
+def is_fixture_nil_nil(html):
+    
+    """
+    Returns True if a fixture ends with 0-0 score otherwise False, given bs4 object
+    """
+    
+    number_of_goals =  str(html).find('Goal!')
+
+    if number_of_goals > 0:
+        return False
+    else:
+        return True
+
+
 
 def get_fixture_links_for_league(bs4, league):
 
