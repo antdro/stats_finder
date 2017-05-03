@@ -239,3 +239,29 @@ def get_goals_info_list(html):
             break
             
     return goals
+
+
+
+def get_kick_off(html):
+    
+    """
+    Returns kick-off date of fixture, given bs4 object
+    """
+    
+    pattern = "(.*?)\| (\d\d\d\d-\d\d-\d\d) \|(.*?)"
+    date = re.search(pattern, str(html)).group(2)
+    
+    return date
+
+
+
+def get_attendance(html):
+    
+    """
+    Returns attendance for fixture, given bs4 object
+    """
+    
+    pattern = '\"attendance\":\"(\d*)\"'
+    attendance = re.search(pattern, str(html)).group(1)
+    
+    return attendance
