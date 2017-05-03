@@ -42,6 +42,22 @@ def is_fixture_nil_nil(html):
         return False
     else:
         return True
+    
+    
+    
+def get_teams(html):
+    
+    """
+    Returns tuple with home and away team names given bs4 object.
+    tuple[0] - home team
+    tuple[1] - away team
+    """
+    pattern = "pageData\":{\"title\":\"(.*?) vs (.*?) \| \d\d\d\d-\d\d-\d\d \|"
+
+    away_team = re.search(pattern, str(html)).group(2)
+    home_team = re.search(pattern, str(html)).group(1)
+    
+    return (home_team, away_team)    
 
 
 
@@ -247,7 +263,7 @@ def get_goal_info(scoring_summary, kickoff):
     Returns a tuple with a goal info, given scoring summary string.
     Tuple format (team, scorer, minute)
     """
-
+    
     pattern = "(\d{1,2})\'(.*?)\. (.*?) \((.*?)\)"
 
     minute = re.search(pattern, scoring_summary).group(1)
@@ -273,14 +289,11 @@ def get_goals_info_list(html):
 
     while exit:
         try:
-            goal_info = get_goal_info(scoring_summary, kickoff)
-            
-            # remove
-            print (goal_info)
-            
+            goal_info = get_goal_info(scoring_summary, kickoff)            
             goals.append(goal_info)
             first_player_index = scoring_summary.find(goal_info[1]) + 1
             scoring_summary = scoring_summary[first_player_index:]
+        
         except AttributeError:
             exit = False
             break
