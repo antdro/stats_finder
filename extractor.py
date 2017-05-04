@@ -45,7 +45,12 @@ def is_fixture_nil_nil(html):
         if number_of_own_goals > 0:
             return False
         else:
-            return True
+            try:
+                injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
+                minute = re.search(injury_time_goal_pattern, str(html)).group(1)
+                return False
+            except AttributeError:
+                return True
     
     
     
@@ -267,18 +272,24 @@ def get_goal_info(scoring_summary, kickoff):
     Returns a tuple with a goal info, given scoring summary string.
     Tuple format (team, scorer, minute)
     """
-   
+    
     try:
         goal_pattern = "(\d{1,2})\'(.*?)\. (.*?) \((.*?)\)"
         minute = re.search(goal_pattern, scoring_summary).group(1)
         scorer = re.search(goal_pattern, scoring_summary).group(3)
         team = re.search(goal_pattern, scoring_summary).group(4)
     except AttributeError:
-        own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
-        minute = re.search(own_goal_pattern, scoring_summary).group(1)
-        scorer = re.search(own_goal_pattern, scoring_summary).group(3)
-        team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
-    
+        try:
+            own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
+            minute = re.search(own_goal_pattern, scoring_summary).group(1)
+            scorer = re.search(own_goal_pattern, scoring_summary).group(3)
+            team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
+        except AttributeError:
+            injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
+            minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
+            scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
+            team = 'NaN'
+
     return (team, scorer, minute, kickoff)
 
 
@@ -299,6 +310,9 @@ def get_goals_info_list(html):
     while exit:
         try:
             goal_info = get_goal_info(scoring_summary, kickoff)
+            
+            print (goal_info)
+            
             goals.append(goal_info)
             first_player_index = scoring_summary.find(goal_info[1]) + 1
             scoring_summary = scoring_summary[first_player_index:]
