@@ -273,23 +273,44 @@ def get_goal_info(scoring_summary, kickoff):
     Tuple format (team, scorer, minute)
     """
     
-    try:
-        goal_pattern = "(\d{1,2})\'(.*?)\. (.*?) \((.*?)\)"
-        minute = re.search(goal_pattern, scoring_summary).group(1)
-        scorer = re.search(goal_pattern, scoring_summary).group(3)
-        team = re.search(goal_pattern, scoring_summary).group(4)
-    except AttributeError:
+    own_goal = scoring_summary.find("Own Goal by")
+    goal = scoring_summary.find("Goal!")
+    
+    if own_goal < goal:
         try:
             own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
             minute = re.search(own_goal_pattern, scoring_summary).group(1)
             scorer = re.search(own_goal_pattern, scoring_summary).group(3)
             team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
         except AttributeError:
-            injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
-            minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
-            scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
-            team = 'NaN'
-
+            try:
+                goal_pattern = "(\d{1,2})\'(.*?)Goal!(.*?)\.(.*?) \((.*?)\)"
+                minute = re.search(goal_pattern, scoring_summary).group(1)
+                scorer = re.search(goal_pattern, scoring_summary).group(4).strip()
+                team = re.search(goal_pattern, scoring_summary).group(5)
+            except AttributeError:
+                injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
+                minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
+                scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
+                team = 'NaN'
+    else:        
+        try:
+            goal_pattern = "(\d{1,2})\'(.*?)Goal!(.*?)\.(.*?) \((.*?)\)"
+            minute = re.search(goal_pattern, scoring_summary).group(1)
+            scorer = re.search(goal_pattern, scoring_summary).group(4).strip()
+            team = re.search(goal_pattern, scoring_summary).group(5)
+        except AttributeError:
+            try:
+                own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
+                minute = re.search(own_goal_pattern, scoring_summary).group(1)
+                scorer = re.search(own_goal_pattern, scoring_summary).group(3)
+                team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
+            except AttributeError:
+                injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
+                minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
+                scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
+                team = 'NaN'
+    
     return (team, scorer, minute, kickoff)
 
 
