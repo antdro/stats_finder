@@ -35,13 +35,17 @@ def is_fixture_nil_nil(html):
     """
     Returns True if a fixture ends with 0-0 score otherwise False, given bs4 object
     """
-    
+
     number_of_goals =  str(html).find('Goal!')
+    number_of_own_goals = str(html).find("Own Goal by")
 
     if number_of_goals > 0:
         return False
     else:
-        return True
+        if number_of_own_goals > 0:
+            return False
+        else:
+            return True
     
     
     
@@ -255,7 +259,7 @@ def get_shirts(html):
             
     return players_dict
 
-
+    
 
 def get_goal_info(scoring_summary, kickoff):
     
@@ -263,12 +267,17 @@ def get_goal_info(scoring_summary, kickoff):
     Returns a tuple with a goal info, given scoring summary string.
     Tuple format (team, scorer, minute)
     """
-    
-    pattern = "(\d{1,2})\'(.*?)\. (.*?) \((.*?)\)"
-
-    minute = re.search(pattern, scoring_summary).group(1)
-    scorer = re.search(pattern, scoring_summary).group(3)
-    team = re.search(pattern, scoring_summary).group(4)
+   
+    try:
+        goal_pattern = "(\d{1,2})\'(.*?)\. (.*?) \((.*?)\)"
+        minute = re.search(goal_pattern, scoring_summary).group(1)
+        scorer = re.search(goal_pattern, scoring_summary).group(3)
+        team = re.search(goal_pattern, scoring_summary).group(4)
+    except AttributeError:
+        own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
+        minute = re.search(own_goal_pattern, scoring_summary).group(1)
+        scorer = re.search(own_goal_pattern, scoring_summary).group(3)
+        team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
     
     return (team, scorer, minute, kickoff)
 
@@ -277,11 +286,11 @@ def get_goal_info(scoring_summary, kickoff):
 def get_goals_info_list(html):
     
     """
-    Returns a list of tuples with a all goals for fixture, given bs4 object.
+    Returns a list of tuples with all goals for fixture, given bs4 object.
     """
-
+    
     scoring_summary = re.search("Scoring Summary(.*?)>Forwards", str(html)).group(1)
-
+    
     exit = True
     goals = []
     
@@ -289,7 +298,7 @@ def get_goals_info_list(html):
 
     while exit:
         try:
-            goal_info = get_goal_info(scoring_summary, kickoff)            
+            goal_info = get_goal_info(scoring_summary, kickoff)
             goals.append(goal_info)
             first_player_index = scoring_summary.find(goal_info[1]) + 1
             scoring_summary = scoring_summary[first_player_index:]
