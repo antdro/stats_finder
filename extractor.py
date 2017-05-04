@@ -332,7 +332,7 @@ def get_goals_info_list(html):
         try:
             goal_info = get_goal_info(scoring_summary, kickoff)
             
-            print (goal_info)
+            print (goal_info) # progress tracking
             
             goals.append(goal_info)
             first_player_index = scoring_summary.find(goal_info[1]) + 1
@@ -343,3 +343,30 @@ def get_goals_info_list(html):
             break
             
     return goals
+
+
+
+def update_missing_goals(html, goals_list):
+    
+    """
+    Returns goals' list updated with missing goals, given bs4 and initial goals_list
+    Format for missing goal tuple ("NaN", "NaN", minute, kickoff)
+    """
+    
+    scoring_summary = re.search("Scoring Summary(.*?)>Forwards", str(html)).group(1)
+
+    pattern = "(\>\d{1,2}\'|\>\d{1,2}\<)"
+    minutes_list = re.findall(pattern, scoring_summary)
+    minutes_check_list = [minute.replace(">", "").replace("\'", "").replace("<", "") for minute in minutes_list]
+
+    minutes_in_goals_list = [tup[2] for tup in goals_list]
+    missing_minutes = list(set(minutes_check_list) - set(minutes_in_goals_list))
+    
+    kickoff = goals_list[0][3]
+    
+    for minute in missing_minutes:
+        
+        missing_goal = ("NaN", "NaN", minute, kickoff)
+        goals_list.append(missing_goal)
+        
+    return goals_list
