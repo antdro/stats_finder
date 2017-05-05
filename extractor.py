@@ -315,7 +315,7 @@ def get_goal_info(scoring_summary, kickoff):
 
 
 
-def get_goals_info_list(html):
+def get_goals_for_fixture_list(html):
     
     """
     Returns a list of tuples with all goals for fixture, given bs4 object.
@@ -370,3 +370,44 @@ def update_missing_goals(html, goals_list):
         goals_list.append(missing_goal)
         
     return goals_list
+
+
+
+def get_goals_for_league_df(links):
+    
+    """
+    Returns df with all goals info for the league given a list of links
+    """
+    
+    goals_df = pd.DataFrame()
+
+    for week in links:
+
+        print (week)  # progress tracking
+
+        for fixture_link in links[week]:
+
+            print (fixture_link) # progress tracking
+            html = from_url_to_bs4(fixture_link)
+
+            if is_fixture_nil_nil(html):
+
+                print ("0-0 score") # progress tracking
+                continue
+            else:
+                goals_list = get_goals_for_fixture_list(html)
+
+            # check if minutes are missing
+            goals_list = update_missing_goals(html, goals_list)
+
+            # update df
+            df_temp = pd.DataFrame(goals_list, columns = ["team", "player", "minute", "kickoff"])
+            df_temp["week"] = [week] * df_temp.shape[0]
+
+            goals_df = pd.concat([goals_df, df_temp]) 
+
+    goals_df = goals_df[['week', 'kickoff', 'team', 'player', 'minute']]
+    goals_df.reset_index(drop = True, inplace = True)
+    goals_df.drop_duplicates(inplace = True)
+    
+    return goals_df
