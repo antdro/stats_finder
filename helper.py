@@ -16,3 +16,26 @@ def encode_non_ascii_url(url):
     url = urlunsplit(url_list)
     
     return url
+
+
+
+def encode_all_non_ascii_urls(links):
+    
+    """
+    Encodes each link containing non ascii chars, returns updated dictionary.
+    """
+    
+    encoded_links = []
+
+    for week in links:
+        for link in links[week]:
+
+            try:
+                link.encode('ascii')
+                encoded_links.append(link)
+            except UnicodeEncodeError:
+                link = encode_non_ascii_url(link)
+                encoded_links.append(link)
+        links[week] = encoded_links
+
+    return links
