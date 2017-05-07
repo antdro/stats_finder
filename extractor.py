@@ -266,12 +266,13 @@ def get_shirts(html):
 
     
 
-def get_goal_info(scoring_summary, kickoff):
+def get_goal_info(scoring_summary, html):
     
     """
     Returns a tuple with a goal info, given scoring summary string.
-    Tuple format (team, scorer, minute)
     """
+        
+    kickoff = get_kick_off(html)
     
     own_goal = scoring_summary.find("Own Goal by")
     goal = scoring_summary.find("Goal!")
@@ -310,8 +311,16 @@ def get_goal_info(scoring_summary, kickoff):
                 minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
                 scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
                 team = 'NaN'
+                
+    home = get_teams(html)[0]
+    away = get_teams(html)[1]
     
-    return (team, scorer, minute, kickoff)
+    if team != "NaN":
+        opponent = list(set([home, away]) - set([team]))[0]
+    else:
+        opponent = "NaN"
+                    
+    return [team, scorer, minute, kickoff, opponent]
 
 
 
@@ -325,12 +334,10 @@ def get_goals_for_fixture_list(html):
     
     exit = True
     goals = []
-    
-    kickoff = get_kick_off(html)
 
     while exit:
         try:
-            goal_info = get_goal_info(scoring_summary, kickoff)
+            goal_info = get_goal_info(scoring_summary, html)
             
             print (goal_info) # progress tracking
             
@@ -359,14 +366,14 @@ def update_missing_goals(html, goals_list):
     minutes_list = re.findall(pattern, scoring_summary)
     minutes_check_list = [minute.replace(">", "").replace("\'", "").replace("<", "") for minute in minutes_list]
 
-    minutes_in_goals_list = [tup[2] for tup in goals_list]
+    minutes_in_goals_list = [list_[2] for list_ in goals_list]
     missing_minutes = list(set(minutes_check_list) - set(minutes_in_goals_list))
     
     kickoff = goals_list[0][3]
     
     for minute in missing_minutes:
         
-        missing_goal = ("NaN", "NaN", minute, kickoff)
+        missing_goal = ["NaN", "NaN", minute, kickoff, "NaN"]
         goals_list.append(missing_goal)
         
     return goals_list
@@ -386,7 +393,7 @@ def get_goals_for_league_df(links):
         print (week)  # progress tracking
 
         for fixture_link in links[week]:
-
+            
             print (fixture_link) # progress tracking
             html = from_url_to_bs4(fixture_link)
 
@@ -401,13 +408,12 @@ def get_goals_for_league_df(links):
             goals_list = update_missing_goals(html, goals_list)
 
             # update df
-            df_temp = pd.DataFrame(goals_list, columns = ["team", "player", "minute", "kickoff"])
+            df_temp = pd.DataFrame(goals_list, columns = ["team", "player", "minute", "kickoff", "opponent"])
             df_temp["week"] = [week] * df_temp.shape[0]
 
             goals_df = pd.concat([goals_df, df_temp]) 
 
-    goals_df = goals_df[['week', 'kickoff', 'team', 'player', 'minute']]
+    goals_df = goals_df[['week', 'kickoff', 'team', 'player', 'minute', 'opponent']]
     goals_df.reset_index(drop = True, inplace = True)
-    goals_df.drop_duplicates(inplace = True)
     
     return goals_df
