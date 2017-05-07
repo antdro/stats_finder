@@ -1,9 +1,14 @@
 # Python 3.6.0 |Anaconda 4.3.1 (64-bit)|
 
 from importer import Request, urlopen, HTTPError, URLError, bs
+import random
+import time
 
 
 def from_url_to_bs4(url):
+    
+    secs_to_sleep = random.randint(1, 7)
+    time.sleep(secs_to_sleep)
 
     while True:
         req = Request(url)
