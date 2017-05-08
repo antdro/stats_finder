@@ -282,35 +282,41 @@ def get_goal_info(scoring_summary, html):
             own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
             minute = re.search(own_goal_pattern, scoring_summary).group(1)
             scorer = re.search(own_goal_pattern, scoring_summary).group(3)
-            team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
+            team = re.search(own_goal_pattern, scoring_summary).group(4)
+            goal = "Own Goal"
         except AttributeError:
             try:
                 goal_pattern = "(\d{1,2})\'(.*?)Goal!(.*?)\.(.*?) \((.*?)\)"
                 minute = re.search(goal_pattern, scoring_summary).group(1)
                 scorer = re.search(goal_pattern, scoring_summary).group(4).strip()
                 team = re.search(goal_pattern, scoring_summary).group(5)
+                goal = "Goal"
             except AttributeError:
                 injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
                 minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
                 scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
                 team = 'NaN'
+                goal = "Goal"
     else:        
         try:
             goal_pattern = "(\d{1,2})\'(.*?)Goal!(.*?)\.(.*?) \((.*?)\)"
             minute = re.search(goal_pattern, scoring_summary).group(1)
             scorer = re.search(goal_pattern, scoring_summary).group(4).strip()
             team = re.search(goal_pattern, scoring_summary).group(5)
+            goal = "Goal"
         except AttributeError:
             try:
                 own_goal_pattern = "(\d{1,2})\'(.*?)Own Goal by (.*?)\, (.*?)\."
                 minute = re.search(own_goal_pattern, scoring_summary).group(1)
                 scorer = re.search(own_goal_pattern, scoring_summary).group(3)
-                team = re.search(own_goal_pattern, scoring_summary).group(4) + " - Own Goal"
+                team = re.search(own_goal_pattern, scoring_summary).group(4)
+                goal = "Own Goal"
             except AttributeError:
                 injury_time_goal_pattern = "(\d{1,2})\+(\d{1,2})\'(.*?)Goal (.*?)<(.*?)"
                 minute = re.search(injury_time_goal_pattern, scoring_summary).group(1)
                 scorer = re.search(injury_time_goal_pattern, scoring_summary).group(4)
                 team = 'NaN'
+                goal = "Own Goal"
                 
     home = get_teams(html)[0]
     away = get_teams(html)[1]
@@ -320,7 +326,7 @@ def get_goal_info(scoring_summary, html):
     else:
         opponent = "NaN"
                     
-    return [team, scorer, minute, kickoff, opponent]
+    return [team, scorer, minute, kickoff, opponent, goal]
 
 
 
@@ -373,7 +379,7 @@ def update_missing_goals(html, goals_list):
     
     for minute in missing_minutes:
         
-        missing_goal = ["NaN", "NaN", minute, kickoff, "NaN"]
+        missing_goal = ["NaN", "NaN", minute, kickoff, "NaN", "Nan"]
         goals_list.append(missing_goal)
         
     return goals_list
@@ -408,12 +414,12 @@ def get_goals_for_league_df(links):
             goals_list = update_missing_goals(html, goals_list)
 
             # update df
-            df_temp = pd.DataFrame(goals_list, columns = ["team", "player", "minute", "kickoff", "opponent"])
+            df_temp = pd.DataFrame(goals_list, columns = ["team", "player", "minute", "kickoff", "opponent", "goal"])
             df_temp["week"] = [week] * df_temp.shape[0]
 
             goals_df = pd.concat([goals_df, df_temp]) 
 
-    goals_df = goals_df[['week', 'kickoff', 'team', 'player', 'minute', 'opponent']]
+    goals_df = goals_df[["week", "kickoff", "team", "player", "minute", "opponent", "goal"]]
     goals_df.reset_index(drop = True, inplace = True)
     
     return goals_df
