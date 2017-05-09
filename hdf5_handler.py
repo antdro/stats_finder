@@ -21,7 +21,7 @@ def create_football_h5():
 def add_league_to_football_h5(leagues):    
     
     """
-    Adds leagues from {country: league} dict to football h5 file; returns updated h5
+    Adds leagues from {country: [league1, league2]} dict to football h5 file; returns updated h5
     """
     
     h5 = h5py.File('db.h5', 'r+')
