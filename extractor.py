@@ -421,3 +421,26 @@ def get_goals_for_league_df(links):
     goals_df.reset_index(drop = True, inplace = True)
     
     return goals_df
+
+
+
+def collect_goals(leagues):
+    
+    """
+    Collects goals for leagues passed and saves them as csv files for each league
+    """
+    
+    for league in leagues:
+
+        league_name = league[0]
+        current_week = league[1]
+        weeks = league[2]
+
+        print ('\n' + league_name + '\n')
+
+        links = get_all_fixture_links_for_league(league_name, current_week, weeks)
+        links = encode_all_non_ascii_urls(links)
+
+        df = get_goals_for_league_df(links)
+
+        df.to_csv("data/" + league_name + ".csv")
