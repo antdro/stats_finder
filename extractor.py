@@ -120,9 +120,9 @@ def get_player_name(player_string):
     Returns player name from bs4 string
     """
     
-    name = re.search("title=\"(\w+. \w+)(.*)", player_string)
+    name = re.search("title=\"(.*?)\"\>\<(.*)", player_string).group(1)
     
-    return name.group(1)
+    return name
 
 
 
