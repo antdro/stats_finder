@@ -236,6 +236,42 @@ def get_fixture_stats_dict(html):
 
 
 
+def validate_fixture_stats_dict(d):
+
+    """
+    Remove data list if its size doesn't match required format.
+    Returns updated dictionary 
+    """
+    
+    dict_checked = {}
+
+    for field in d.keys():
+
+        dict_checked[field] = {}
+        for role in d[field]:
+
+            dict_checked[field][role] = {}
+            for player in d[field][role]:
+
+                if (role == "substitutes") & (len(d[field][role][player]) == 7):
+                    dict_checked[field][role][player] = d[field][role][player]
+
+                if (role == "forwards") & (len(d[field][role][player]) == 12):
+                    dict_checked[field][role][player] = d[field][role][player]
+
+                if (role == "defenders") & (len(d[field][role][player]) == 12):
+                    dict_checked[field][role][player] = d[field][role][player]
+
+                if (role == "midfielders") & (len(d[field][role][player]) == 12):
+                    dict_checked[field][role][player] = d[field][role][player]
+
+                if (role == "goalkeepers") & (len(d[field][role][player]) == 10):
+                    dict_checked[field][role][player] = d[field][role][player]
+    
+    return dict_checked
+
+
+
 def get_shirts(html):
     
     """
