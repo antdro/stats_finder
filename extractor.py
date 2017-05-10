@@ -298,6 +298,68 @@ def get_shirts(html):
             
     return players_dict
 
+
+
+def collect_stats_for_fixture(d, html):
+
+    """
+    Returns df with stats for all players for fixture
+    """
+
+    fixture = pd.DataFrame()
+
+    stats_per_position = {
+        'substitutes' : ['G','FC','FS','Y','R','PEN','MINS'],
+        'goalkeepers' : ['G','SAV','GC','GK','FC','FS','Y','R','PEN','MINS'],
+        'defenders'   : ['G','GA','S','TA','CLR','COR','FC','FS','Y','R','PEN','MINS'],
+        'midfielders' : ['G','GA','S','PAS','FK','COR','FC','FS','Y','R','PEN','MINS'],
+        'forwards'    : ['G','GA','S','PAS','FK','COR','FC','FS','Y','R','PEN','MINS']
+    }
+    
+    home,away = get_teams(html)
+    teams = {
+        "home" : home,
+        "away" : away
+    }
+    
+    for field in d:
+
+        subs_df = pd.DataFrame(d[field]['substitutes']).T
+        subs_df.columns = stats_per_position['substitutes']
+
+        goal_df = pd.DataFrame(d[field]['goalkeepers']).T
+        goal_df.columns = stats_per_position['goalkeepers']
+
+        def_df = pd.DataFrame(d[field]['defenders']).T
+        def_df.columns = stats_per_position['defenders']
+
+        mid_df = pd.DataFrame(d[field]['midfielders']).T
+        mid_df.columns = stats_per_position['midfielders']
+
+        forw_df = pd.DataFrame(d[field]['forwards']).T
+        forw_df.columns = stats_per_position['forwards']
+
+        df = pd.concat([subs_df, goal_df, def_df, mid_df, forw_df])
+        df.drop_duplicates(inplace = True)
+        df = df.reset_index()
+        df.rename(columns = {"index": "player"}, inplace = True)
+        df = df.fillna(0)
+        df = df[df.MINS != '0']
+
+        n_rows = df.shape[0]
+        df['team'] = [teams[field]] * n_rows
+        df['field'] = [field] * n_rows
+
+        fixture = pd.concat([fixture, df])
+
+    kickoff = get_kick_off(html)
+    attendance = get_attendance(html)
+    n_rows = fixture.shape[0]
+    fixture['kickoff'] = [kickoff] * n_rows
+    fixture['attendance'] = [attendance] * n_rows
+
+    return fixture
+
     
 
 def get_goal_info(scoring_summary, html):
