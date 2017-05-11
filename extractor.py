@@ -2,6 +2,7 @@
 
 from importer import pd, bs, os, re
 from loader import from_url_to_bs4
+from helper import *
 
 
 def get_kick_off(html):
@@ -326,18 +327,34 @@ def collect_stats_for_fixture(d, html):
 
         subs_df = pd.DataFrame(d[field]['substitutes']).T
         subs_df.columns = stats_per_position['substitutes']
-
+        n_players = subs_df.shape[0]
+        position = ['substitute'] * n_players
+        subs_df['position'] = position
+        
+        
         goal_df = pd.DataFrame(d[field]['goalkeepers']).T
         goal_df.columns = stats_per_position['goalkeepers']
+        n_players = goal_df.shape[0]
+        position = ['goalkeeper'] * n_players
+        goal_df['position'] = position
 
         def_df = pd.DataFrame(d[field]['defenders']).T
         def_df.columns = stats_per_position['defenders']
+        n_players = def_df.shape[0]
+        position = ['defender'] * n_players
+        def_df['position'] = position
 
         mid_df = pd.DataFrame(d[field]['midfielders']).T
         mid_df.columns = stats_per_position['midfielders']
+        n_players = mid_df.shape[0]
+        position = ['midfielder'] * n_players
+        mid_df['position'] = position        
 
         forw_df = pd.DataFrame(d[field]['forwards']).T
         forw_df.columns = stats_per_position['forwards']
+        n_players = forw_df.shape[0]
+        position = ['forward'] * n_players
+        forw_df['position'] = position  
 
         df = pd.concat([subs_df, goal_df, def_df, mid_df, forw_df])
         df.drop_duplicates(inplace = True)
@@ -349,6 +366,10 @@ def collect_stats_for_fixture(d, html):
         n_rows = df.shape[0]
         df['team'] = [teams[field]] * n_rows
         df['field'] = [field] * n_rows
+        
+        opponent_key = list(set(teams.keys()) - set([field]))[0]
+        print (opponent_key)
+        df['opponent'] = [teams[opponent_key]] * n_rows
 
         fixture = pd.concat([fixture, df])
 
