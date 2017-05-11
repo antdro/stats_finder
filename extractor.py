@@ -360,7 +360,52 @@ def collect_stats_for_fixture(d, html):
 
     return fixture
 
+
+
+def collect_stats_for_all_leagues(leagues):
+
+    """
+    Returns df with stats for all players for all leagues
+    """
+
+    for league in leagues:
+        
+        df = pd.DataFrame()
+        
+        links = get_all_fixture_links_for_league(league[0], league[1], league[2])
+        links = encode_all_non_ascii_urls(links)
+
+        for week in links:
+
+            print (week)
+            for link in links[week]:
+                
+                print (link)               
+                html = from_url_to_bs4(link)
+                
+                try:
+                    fixture_dict = get_fixture_stats_dict(html)
+                    fixture_dict = validate_fixture_stats_dict(fixture_dict)
+                        
+                    df_temp = collect_stats_for_fixture(fixture_dict, html)
+                    df = pd.concat([df, df_temp])
+
+                    print ('success')
+                
+                except AttributeError as e:
+                    print (e)
+                    continue
+                except ValueError as e:
+                    print (e)
+                    continue
+                
+        df = df.reset_index(drop = True)
     
+        df.to_csv('data/' + league[0] + '.csv')
+    
+    return df
+    
+
 
 def get_goal_info(scoring_summary, html):
     
