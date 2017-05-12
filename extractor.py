@@ -368,7 +368,6 @@ def collect_stats_for_fixture(d, html):
         df['field'] = [field] * n_rows
         
         opponent_key = list(set(teams.keys()) - set([field]))[0]
-        print (opponent_key)
         df['opponent'] = [teams[opponent_key]] * n_rows
 
         fixture = pd.concat([fixture, df])
@@ -404,21 +403,29 @@ def collect_stats_for_all_leagues(leagues):
                 print (link)               
                 html = from_url_to_bs4(link)
                 
-                try:
-                    fixture_dict = get_fixture_stats_dict(html)
-                    fixture_dict = validate_fixture_stats_dict(fixture_dict)
-                        
-                    df_temp = collect_stats_for_fixture(fixture_dict, html)
-                    df = pd.concat([df, df_temp])
+                exit = False
+                while not exit:
+                    try:
+                        fixture_dict = get_fixture_stats_dict(html)
+                        fixture_dict = validate_fixture_stats_dict(fixture_dict)
 
-                    print ('success')
-                
-                except AttributeError as e:
-                    print (e)
-                    continue
-                except ValueError as e:
-                    print (e)
-                    continue
+                        df_temp = collect_stats_for_fixture(fixture_dict, html)
+                        df = pd.concat([df, df_temp])
+
+                        print ('success')
+                        exit = True
+                    except HTTPError as e:
+                        print ('HTTP Error:')
+                        print (e)
+                        exit = False
+                    except AttributeError as e:
+                        print ('AttributeError:')
+                        print (e)
+                        exit = True
+                    except ValueError as e:
+                        print ('ValueError:')
+                        print (e)
+                        exit = True
                 
         df = df.reset_index(drop = True)
     
