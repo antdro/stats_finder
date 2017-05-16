@@ -1,6 +1,6 @@
 # Python 3.6.0 |Anaconda 4.3.1 (64-bit)|
 
-from importer import pd, bs, os, re
+from importer import pd, bs, os, re, HTTPError
 from loader import from_url_to_bs4
 from helper import *
 
@@ -429,7 +429,7 @@ def collect_stats_for_all_leagues(leagues):
                 
         df = df.reset_index(drop = True)
     
-        df.to_csv('data/' + league[0] + '.csv')
+        df.to_csv('data/' + league[0] + '.csv', encoding = "latin1")
     
     return df
     
